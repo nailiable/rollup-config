@@ -1,35 +1,16 @@
 {
-  "name": "v29",
+  "packageManager": "pnpm@8.8.0",
+  "author": "Zero <gczgroup@qq.com>",
   "scripts": {
+    "build": "pnpm -F @naiable/rollup-config build",
+    "test": "pnpm -F test dev",
     "format": "prettier --write ./",
-    "lint": "eslint \"./**/*.ts\" --fix",
+    "lint": "eslint . --fix",
     "prepare": "husky install",
     "lint-staged": "lint-staged"
   },
-  "author": "Zero <gczgroup@qq.com>",
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.json": [
-      "prettier --write"
-    ],
-    "*.vue": [
-      "eslint --fix",
-      "prettier --write",
-      "stylelint --fix"
-    ],
-    "*.{scss,less,html}": [
-      "stylelint --fix",
-      "prettier --write"
-    ],
-    "*.md": [
-      "prettier --write"
-    ]
-  },
-  "packageManager": "pnpm@8.8.0",
   "devDependencies": {
+    "@antfu/eslint-config": "^2.16.0",
     "@changesets/cli": "^2.27.1",
     "@commitlint/cli": "^17.8.1",
     "@commitlint/config-conventional": "^17.8.1",
@@ -37,13 +18,15 @@
     "@types/node": "^20.11.30",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "eslint": "^8.57.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.1.3",
     "husky": "^8.0.3",
     "lint-staged": "^15.2.2",
-    "prettier": "^3.2.5",
-    "prettier-eslint": "^16.3.0",
     "typescript": "^5.4.2",
     "vitest": "^1.4.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,md,json,vue,scss,less,html}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   }
 }

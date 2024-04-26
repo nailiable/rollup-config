@@ -1,0 +1,12 @@
+{
+  "name": "test",
+  "version": null,
+  "private": true,
+  "scripts": {
+    "dev": "naiup"
+  },
+  "dependencies": {
+    "@naiable/rollup-config": "workspace:*",
+    "rollup": "4.16.4"
+  }
+}
