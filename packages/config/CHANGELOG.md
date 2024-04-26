@@ -1,5 +1,11 @@
 # @naiable/rollup-config
 
+## 0.1.3
+
+### Patch Changes
+
+- 127b240: feat: add README
+
 ## 0.1.2
 
 ### Patch Changes
