@@ -1,5 +1,11 @@
 # @naiable/rollup-config
 
+## 0.1.5
+
+### Patch Changes
+
+- 88c011d: feat: add app / lib preset
+
 ## 0.1.4
 
 ### Patch Changes
