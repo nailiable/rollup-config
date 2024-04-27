@@ -1,6 +1,6 @@
 {
   "name": "@naiable/rollup-config",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Use rollup like tsup, but opinionated my way.",
   "author": {
     "name": "Naily Zero",
@@ -48,7 +48,7 @@
     "naiup": "bin/naiup"
   },
   "scripts": {
-    "build": "rollup -c rollup.config.ts --configPlugin @rollup/plugin-swc",
+    "build": "rollup -c rollup.config.ts --configPlugin @rollup/plugin-typescript",
     "prepublishOnly": "npm run build"
   },
   "publishConfig": {

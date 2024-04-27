@@ -1,10 +1,9 @@
-// eslint-disable-next-line ts/ban-ts-comment
-// @ts-nocheck
-import naiup from "./src/index.ts";
+import { presetLib } from "./src";
 
-export default naiup({
+export default presetLib({
   input: {
     index: "src/index.ts",
     cli: "src/cli.ts",
   },
-});
+  dir: "dist",
+}).build();

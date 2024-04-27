@@ -61,7 +61,7 @@ export interface INaiableRollupConfig {
   /** Use `@rollup/plugin-typescript` or `@rollup/plugin-swc` ? */
   compile?: INaiableRollupCompileConfig;
   /** The `d.ts` build options. */
-  dts?: RollupDTSOptions;
+  dts?: RollupDTSOptions | false;
   /** Use strict. @default true */
   strict?: boolean;
   /** Source map. @default inline */
@@ -131,21 +131,23 @@ export default function naiup(config: INaiableRollupConfig = {}): RollupOptions[
         }),
   ];
 
-  const [defaultComputedBuildOptions, defaultComputedDtsOptions] = [
-    {
-      input: finalConfig.input,
-      external: finalConfig.external,
-      plugins: [...finalPlugins],
-      output: [...new Set(finalConfig.output)].map((format) => ({
-        format,
-        dir: join(finalConfig.dir, format),
-        entryFileNames: `[name].${format === "cjs" ? "cjs" : "mjs"}`,
-        strict: finalConfig.strict,
-        sourcemap: finalConfig.sourcemap,
-        preserveModules: finalConfig.preserveModules,
-      })),
-    },
-    {
+  const defaultComputedBuildOptions: RollupOptions = {
+    input: finalConfig.input,
+    external: finalConfig.external,
+    plugins: [...finalPlugins],
+    output: [...new Set(finalConfig.output)].map((format) => ({
+      format,
+      dir: join(finalConfig.dir, format),
+      entryFileNames: `[name].${format === "cjs" ? "cjs" : "mjs"}`,
+      strict: finalConfig.strict,
+      sourcemap: finalConfig.sourcemap,
+      preserveModules: finalConfig.preserveModules,
+    })),
+  };
+
+  let defaultComputedDtsOptions: RollupOptions | undefined;
+  if (finalConfig.dts !== false) {
+    defaultComputedDtsOptions = {
       input: finalConfig.input,
       external: finalConfig.external,
       plugins: [...finalPlugins, dts(finalConfig.dts)],
@@ -156,7 +158,7 @@ export default function naiup(config: INaiableRollupConfig = {}): RollupOptions[
           entryFileNames: `[name].d.${format === "cjs" ? "cts" : "mts"}`,
           strict: finalConfig.strict,
           sourcemap: finalConfig.sourcemap,
-          preserveModules: true,
+          preserveModules: finalConfig.preserveModules,
         })),
         {
           dir: join(finalConfig.dir, "types"),
@@ -166,14 +168,18 @@ export default function naiup(config: INaiableRollupConfig = {}): RollupOptions[
           preserveModules: finalConfig.preserveModules,
         },
       ],
-    },
-  ] as RollupOptions[];
+    };
+  }
 
   const finalBuildOptions = defu(finalConfig.overrides.buildOptions, defaultComputedBuildOptions);
-  const finalDtsOptions = defu(finalConfig.overrides.dtsOptions, defaultComputedDtsOptions);
+  const finalDtsOptions = defaultComputedDtsOptions ? defu(finalConfig.overrides.dtsOptions, defaultComputedDtsOptions) : undefined;
 
-  if (finalConfig.snapshot.enable && finalConfig.snapshot.path)
-    writeFile(finalConfig.snapshot.path, JSON.stringify([finalBuildOptions, finalDtsOptions]));
+  const returns = finalDtsOptions ? [finalBuildOptions, finalDtsOptions] : [finalBuildOptions];
 
-  return [finalBuildOptions, finalDtsOptions];
+  if (finalConfig.snapshot.enable && finalConfig.snapshot.path) writeFile(finalConfig.snapshot.path, JSON.stringify(returns));
+
+  return returns;
 }
+
+export * from "./preset-app";
+export * from "./preset-lib";
