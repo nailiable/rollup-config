@@ -28,38 +28,59 @@ export function writeFile(path: string, content: string): void {
 }
 
 export interface INaiableRollupCompileTypeScriptConfig {
+  /** Use `@rollup/plugin-typescript`! */
   type: "@rollup/plugin-typescript";
+  /** TypeScript Options. */
   typescript?: RollupTypescriptOptions;
 }
 export interface INaiableRollupCompileSWCConfig {
+  /** Use `@rollup/plugin-swc`! */
   type: "@rollup/plugin-swc";
   /** SWC Options, import `@swc/core`'s `Config` interface to help configure */
   swc?: Record<string, any>;
+  /** Include and exclude files. */
   include?: FilterPattern;
+  /** Include and exclude files. */
   exclude?: FilterPattern;
 }
 export type INaiableRollupCompileConfig = INaiableRollupCompileTypeScriptConfig | INaiableRollupCompileSWCConfig;
 
 export interface INaiableRollupConfig {
+  /** The input file. @default 'src/index.ts' */
   input?: InputOption;
+  /** The output format. @default ['cjs', 'esm'] */
   output?: ("cjs" | "esm")[];
+  /** The output directory. @default 'dist' */
   dir?: string;
+  /** The `@rollup/plugin-alias` options. Default alias `@` to `src`. */
   alias?: RollupAliasOptions;
+  /** The `@rollup/plugin-commonjs` options. */
   commonjs?: RollupCommonJSOptions;
+  /** The `@rollup/plugin-node-resolve` options. Default extensions include `.ts`, `.tsx`, `.cjs`, `.jsx`, `.mts`, `.cts`. */
   resolve?: RollupNodeResolveOptions;
+  /** Use `@rollup/plugin-typescript` or `@rollup/plugin-swc` ? */
   compile?: INaiableRollupCompileConfig;
+  /** The `d.ts` build options. */
   dts?: RollupDTSOptions;
+  /** Use strict. @default true */
   strict?: boolean;
+  /** Source map. @default inline */
   sourcemap?: boolean | "inline" | "hidden";
+  /** Free override rollup config */
   overrides?: {
+    /** The `Build` options. */
     buildOptions?: RollupOptions;
+    /** The `d.ts` build options. */
     dtsOptions?: RollupOptions;
   };
+  /** Generate a snapshot json file when builded. */
   snapshot?: {
+    /** Enable snapshot. @default false */
     enable: boolean;
+    /** The snapshot file path. @default `rollup.config.snapshot-${new Date().toISOString()}.json` */
     path?: string;
   };
-  /** @default true */
+  /** Preserve modules. @default true */
   preserveModules?: boolean;
 }
 
