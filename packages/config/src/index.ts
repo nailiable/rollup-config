@@ -59,6 +59,8 @@ export interface INaiableRollupConfig {
     enable: boolean;
     path?: string;
   };
+  /** @default true */
+  preserveModules?: boolean;
 }
 
 export default function naiup(config: INaiableRollupConfig = {}): RollupOptions[] {
@@ -88,6 +90,7 @@ export default function naiup(config: INaiableRollupConfig = {}): RollupOptions[
       enable: false,
       path: `rollup.config.snapshot-${new Date().toISOString()}.json`,
     },
+    preserveModules: true,
   };
 
   const finalConfig = defu(config, defaults);
@@ -95,7 +98,13 @@ export default function naiup(config: INaiableRollupConfig = {}): RollupOptions[
     alias(finalConfig.alias),
     commonjs(finalConfig.commonjs),
     resolve(finalConfig.resolve),
-    finalConfig.compile.type === "@rollup/plugin-typescript" ? typescript(finalConfig.compile.typescript) : swc(finalConfig.compile),
+    finalConfig.compile.type === "@rollup/plugin-typescript"
+      ? typescript({
+          ...finalConfig.compile.typescript,
+        })
+      : swc({
+          ...finalConfig.compile,
+        }),
   ];
 
   const [defaultComputedBuildOptions, defaultComputedDtsOptions] = [
@@ -109,6 +118,7 @@ export default function naiup(config: INaiableRollupConfig = {}): RollupOptions[
         entryFileNames: `[name].${format === "cjs" ? "cjs" : "mjs"}`,
         strict: finalConfig.strict,
         sourcemap: finalConfig.sourcemap,
+        preserveModules: finalConfig.preserveModules,
       })),
     },
     {
@@ -122,16 +132,18 @@ export default function naiup(config: INaiableRollupConfig = {}): RollupOptions[
           entryFileNames: `[name].d.${format === "cjs" ? "cts" : "mts"}`,
           strict: finalConfig.strict,
           sourcemap: finalConfig.sourcemap,
+          preserveModules: true,
         })),
         {
           dir: join(finalConfig.dir, "types"),
           entryFileNames: "[name].d.ts",
           strict: finalConfig.strict,
           sourcemap: finalConfig.sourcemap,
+          preserveModules: finalConfig.preserveModules,
         },
       ],
     },
-  ];
+  ] as RollupOptions[];
 
   const finalBuildOptions = defu(finalConfig.overrides.buildOptions, defaultComputedBuildOptions);
   const finalDtsOptions = defu(finalConfig.overrides.dtsOptions, defaultComputedDtsOptions);
