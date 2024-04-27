@@ -1,7 +1,7 @@
 import { dirname, join } from "node:path";
 import fs from "node:fs";
 import { defu } from "defu";
-import type { InputOption, InputPluginOption, RollupOptions } from "rollup";
+import type { ExternalOption, InputOption, InputPluginOption, RollupOptions } from "rollup";
 import type { RollupAliasOptions } from "@rollup/plugin-alias";
 import alias from "@rollup/plugin-alias";
 import type { RollupCommonJSOptions } from "@rollup/plugin-commonjs";
@@ -82,6 +82,8 @@ export interface INaiableRollupConfig {
   };
   /** Preserve modules. @default true */
   preserveModules?: boolean;
+  /** External dependencies. @default [/node_modules/] */
+  external?: ExternalOption;
 }
 
 export default function naiup(config: INaiableRollupConfig = {}): RollupOptions[] {
@@ -112,6 +114,7 @@ export default function naiup(config: INaiableRollupConfig = {}): RollupOptions[
       path: `rollup.config.snapshot-${new Date().toISOString()}.json`,
     },
     preserveModules: true,
+    external: [/node_modules/],
   };
 
   const finalConfig = defu(config, defaults);
@@ -131,7 +134,7 @@ export default function naiup(config: INaiableRollupConfig = {}): RollupOptions[
   const [defaultComputedBuildOptions, defaultComputedDtsOptions] = [
     {
       input: finalConfig.input,
-      external: [/node_modules/],
+      external: finalConfig.external,
       plugins: [...finalPlugins],
       output: [...new Set(finalConfig.output)].map((format) => ({
         format,
@@ -144,7 +147,7 @@ export default function naiup(config: INaiableRollupConfig = {}): RollupOptions[
     },
     {
       input: finalConfig.input,
-      external: [/node_modules/],
+      external: finalConfig.external,
       plugins: [...finalPlugins, dts(finalConfig.dts)],
       output: [
         ...[...new Set(finalConfig.output)].map((format) => ({
