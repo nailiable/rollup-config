@@ -53,11 +53,11 @@ export interface INaiableRollupConfig {
   /** The output directory. @default 'dist' */
   dir?: string;
   /** The `@rollup/plugin-alias` options. Default alias `@` to `src`. */
-  alias?: RollupAliasOptions;
+  alias?: RollupAliasOptions | false;
   /** The `@rollup/plugin-commonjs` options. */
-  commonjs?: RollupCommonJSOptions;
+  commonjs?: RollupCommonJSOptions | false;
   /** The `@rollup/plugin-node-resolve` options. Default extensions include `.ts`, `.tsx`, `.cjs`, `.jsx`, `.mts`, `.cts`. */
-  resolve?: RollupNodeResolveOptions;
+  resolve?: RollupNodeResolveOptions | false;
   /** Use `@rollup/plugin-typescript` or `@rollup/plugin-swc` ? */
   compile?: INaiableRollupCompileConfig;
   /** The `d.ts` build options. */
@@ -118,18 +118,16 @@ export default function naiup(config: INaiableRollupConfig = {}): RollupOptions[
   };
 
   const finalConfig = defu(config, defaults);
-  const finalPlugins: InputPluginOption[] = [
-    alias(finalConfig.alias),
-    commonjs(finalConfig.commonjs),
-    resolve(finalConfig.resolve),
-    finalConfig.compile.type === "@rollup/plugin-typescript"
-      ? typescript({
-          ...finalConfig.compile.typescript,
-        })
-      : swc({
-          ...finalConfig.compile,
-        }),
-  ];
+  const finalPlugins: InputPluginOption[] = [];
+
+  if (finalConfig.alias !== false) finalPlugins.push(alias(finalConfig.alias));
+
+  if (finalConfig.commonjs !== false) finalPlugins.push(commonjs(finalConfig.commonjs));
+
+  if (finalConfig.resolve !== false) finalPlugins.push(resolve(finalConfig.resolve));
+
+  if (finalConfig.compile.type === "@rollup/plugin-swc") finalPlugins.push(swc(finalConfig.compile));
+  else if (finalConfig.compile.type === "@rollup/plugin-typescript") finalPlugins.push(typescript(finalConfig.compile.typescript));
 
   const defaultComputedBuildOptions: RollupOptions = {
     input: finalConfig.input,
