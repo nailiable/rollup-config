@@ -1,5 +1,11 @@
 # @naiable/rollup-config
 
+## 0.1.7
+
+### Patch Changes
+
+- 7601511: feat: add disable feature
+
 ## 0.1.6
 
 ### Patch Changes
