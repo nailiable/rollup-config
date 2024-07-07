@@ -1,5 +1,6 @@
 import { dirname, join } from "node:path";
 import fs from "node:fs";
+import { cwd } from "node:process";
 import { defu } from "defu";
 import type { ExternalOption, InputOption, InputPluginOption, OutputOptions, RollupOptions } from "rollup";
 import type { RollupAliasOptions } from "@rollup/plugin-alias";
@@ -115,7 +116,7 @@ export default function naiup(config: INaiableRollupConfig = {}): RollupOptions[
     sourcemap: "inline",
     dir: "dist",
     alias: {
-      entries: [{ find: "@", replacement: "src" }],
+      entries: [{ find: "@", replacement: join(cwd(), "src") }],
     },
     commonjs: {},
     resolve: {
