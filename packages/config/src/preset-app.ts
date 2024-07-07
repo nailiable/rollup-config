@@ -18,6 +18,7 @@ export function presetApp(mixin: INaiableRollupConfig = {}): INaiablePreset {
     dts: {
       tsconfig: existsSync("tsconfig.build.json") ? "tsconfig.build.json" : "tsconfig.json",
     },
+    terser: {},
     preserveModules: false,
     external(source) {
       if (/tslib/.test(source)) return false;

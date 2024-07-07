@@ -18,6 +18,7 @@ import vue from "unplugin-vue/rollup";
 import esbuild from "rollup-plugin-esbuild";
 import type { RollupBabelInputPluginOptions, RollupBabelOutputPluginOptions } from "@rollup/plugin-babel";
 import babel, { getBabelOutputPlugin } from "@rollup/plugin-babel";
+import terser from "@rollup/plugin-terser";
 
 export function writeFile(path: string, content: string): void {
   // 创建文件夹
@@ -80,6 +81,8 @@ export interface INaiableRollupConfig {
   vue?: Parameters<typeof vue>[0] | false;
   /** The `@rollup/plugin-babel` options. */
   babel?: INaiableBabelOptions | false;
+  /** The `@rollup/plugin-terser` options. */
+  terser?: Parameters<typeof terser>[0] | false;
   /** Use strict. @default true */
   strict?: boolean;
   /** Source map. @default inline */
@@ -127,6 +130,7 @@ export default function naiup(config: INaiableRollupConfig = {}): RollupOptions[
       sourceMap: true,
     },
     babel: false,
+    terser: false,
     overrides: {
       buildOptions: {},
       dtsOptions: {},
@@ -160,6 +164,8 @@ export default function naiup(config: INaiableRollupConfig = {}): RollupOptions[
     else if (complieOptions.type === "@rollup/plugin-typescript") finalPlugins.push(typescript(complieOptions.typescript));
     else if (complieOptions.type === "rollup-plugin-esbuild") finalPlugins.push(esbuild(complieOptions.esbuild));
   }
+
+  if (finalConfig.terser !== false) finalOutputPlugins.push(terser(finalConfig.terser));
 
   const defaultComputedBuildOptions: RollupOptions = {
     input: finalConfig.input,
