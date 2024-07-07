@@ -1,5 +1,11 @@
 # @naiable/rollup-config
 
+## 0.2.0
+
+### Minor Changes
+
+- 0e5f926: feat: release new version
+
 ## 0.1.7
 
 ### Patch Changes

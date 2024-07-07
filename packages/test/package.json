@@ -1,6 +1,7 @@
 {
   "name": "test",
   "type": "module",
+  "version": null,
   "private": true,
   "scripts": {
     "dev": "naiup && node dist/esm/main.mjs"

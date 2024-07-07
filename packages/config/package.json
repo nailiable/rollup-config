@@ -1,6 +1,6 @@
 {
   "name": "@naiable/rollup-config",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "description": "Use rollup like tsup, but opinionated my way.",
   "author": {
     "name": "Naily Zero",
