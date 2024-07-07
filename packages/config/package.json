@@ -35,15 +35,87 @@
     ".": {
       "types": {
         "import": "./dist/esm/index.d.mts",
-        "require": "./dist/cjs/index.d.cts",
-        "default": "./dist/types/index.d.mts"
+        "require": "./dist/cjs/index.d.cts"
       },
       "import": "./dist/esm/index.mjs",
       "require": "./dist/cjs/index.cjs"
+    },
+    "./alias": {
+      "types": {
+        "import": "./dist/esm/alias.d.mts",
+        "require": "./dist/cjs/alias.d.cts"
+      },
+      "import": "./dist/esm/alias.mjs",
+      "require": "./dist/cjs/alias.cjs"
+    },
+    "./commonjs": {
+      "types": {
+        "import": "./dist/esm/commonjs.d.mts",
+        "require": "./dist/cjs/commonjs.d.cts"
+      },
+      "import": "./dist/esm/commonjs.mjs",
+      "require": "./dist/cjs/commonjs.cjs"
+    },
+    "./resolve": {
+      "types": {
+        "import": "./dist/esm/resolve.d.mts",
+        "require": "./dist/cjs/resolve.d.cts"
+      },
+      "import": "./dist/esm/resolve.mjs",
+      "require": "./dist/cjs/resolve.cjs"
+    },
+    "./swc": {
+      "types": {
+        "import": "./dist/esm/swc.d.mts",
+        "require": "./dist/cjs/swc.d.cts"
+      },
+      "import": "./dist/esm/swc.mjs",
+      "require": "./dist/cjs/swc.cjs"
+    },
+    "./typescript": {
+      "types": {
+        "import": "./dist/esm/typescript.d.mts",
+        "require": "./dist/cjs/typescript.d.cts"
+      },
+      "import": "./dist/esm/typescript.mjs",
+      "require": "./dist/cjs/typescript.cjs"
+    },
+    "./dts": {
+      "types": {
+        "import": "./dist/esm/dts.d.mts",
+        "require": "./dist/cjs/dts.d.cts"
+      },
+      "import": "./dist/esm/dts.mjs",
+      "require": "./dist/cjs/dts.cjs"
+    },
+    "./vue": {
+      "types": {
+        "import": "./dist/esm/vue.d.mts",
+        "require": "./dist/cjs/vue.d.cts"
+      },
+      "import": "./dist/esm/vue.mjs",
+      "require": "./dist/cjs/vue.cjs"
+    },
+    "./esbuild": {
+      "types": {
+        "import": "./dist/esm/esbuild.d.mts",
+        "require": "./dist/cjs/esbuild.d.cts"
+      },
+      "import": "./dist/esm/esbuild.mjs",
+      "require": "./dist/cjs/esbuild.cjs"
+    },
+    "./babel": {
+      "types": {
+        "import": "./dist/esm/babel.d.mts",
+        "require": "./dist/cjs/babel.d.cts"
+      },
+      "import": "./dist/esm/babel.mjs",
+      "require": "./dist/cjs/babel.cjs"
     }
   },
   "main": "dist/cjs/index.cjs",
   "module": "dist/esm/index.mjs",
+  "types": "dist/types/index.d.ts",
   "bin": {
     "naiup": "bin/naiup"
   },
@@ -58,14 +130,19 @@
   },
   "dependencies": {
     "@rollup/plugin-alias": "5.1.0",
+    "@rollup/plugin-babel": "6.0.4",
     "@rollup/plugin-commonjs": "25.0.7",
     "@rollup/plugin-node-resolve": "15.2.3",
     "@rollup/plugin-swc": "0.3.0",
+    "@rollup/plugin-terser": "0.4.4",
     "@rollup/plugin-typescript": "11.1.6",
     "@rollup/pluginutils": "5.1.0",
     "@swc/core": "1.5.0",
+    "@types/babel__core": "7.20.5",
     "defu": "6.1.4",
     "rollup": "4.16.4",
-    "rollup-plugin-dts": "6.1.0"
+    "rollup-plugin-dts": "6.1.0",
+    "rollup-plugin-esbuild": "6.1.1",
+    "unplugin-vue": "5.0.5"
   }
 }

@@ -1,7 +1,7 @@
 import { dirname, join } from "node:path";
 import fs from "node:fs";
 import { defu } from "defu";
-import type { ExternalOption, InputOption, InputPluginOption, RollupOptions } from "rollup";
+import type { ExternalOption, InputOption, InputPluginOption, OutputOptions, RollupOptions } from "rollup";
 import type { RollupAliasOptions } from "@rollup/plugin-alias";
 import alias from "@rollup/plugin-alias";
 import type { RollupCommonJSOptions } from "@rollup/plugin-commonjs";
@@ -14,6 +14,10 @@ import dts from "rollup-plugin-dts";
 import type { FilterPattern } from "@rollup/pluginutils";
 import type { RollupTypescriptOptions } from "@rollup/plugin-typescript";
 import typescript from "@rollup/plugin-typescript";
+import vue from "unplugin-vue/rollup";
+import esbuild from "rollup-plugin-esbuild";
+import type { RollupBabelInputPluginOptions, RollupBabelOutputPluginOptions } from "@rollup/plugin-babel";
+import babel, { getBabelOutputPlugin } from "@rollup/plugin-babel";
 
 export function writeFile(path: string, content: string): void {
   // 创建文件夹
@@ -36,15 +40,25 @@ export interface INaiableRollupCompileTypeScriptConfig {
 export interface INaiableRollupCompileSWCConfig {
   /** Use `@rollup/plugin-swc`! */
   type: "@rollup/plugin-swc";
-  /** SWC Options, import `@swc/core`'s `Config` interface to help configure */
-  swc?: Record<string, any>;
+  /** SWC Options */
+  swc?: Parameters<typeof swc>[0];
   /** Include and exclude files. */
   include?: FilterPattern;
   /** Include and exclude files. */
   exclude?: FilterPattern;
 }
-export type INaiableRollupCompileConfig = INaiableRollupCompileTypeScriptConfig | INaiableRollupCompileSWCConfig;
+export interface INaiableRollupComplieEsbuildConfig {
+  /** Use `rollup-plugin-esbuild`! */
+  type: "rollup-plugin-esbuild";
+  /** Esbuild Options. */
+  esbuild?: Parameters<typeof esbuild>[0];
+}
+export type INaiableRollupCompileConfig = INaiableRollupCompileTypeScriptConfig | INaiableRollupCompileSWCConfig | INaiableRollupComplieEsbuildConfig;
 
+export interface INaiableBabelOptions {
+  inputOptions?: RollupBabelInputPluginOptions | false;
+  outputOptions?: RollupBabelOutputPluginOptions | false;
+}
 export interface INaiableRollupConfig {
   /** The input file. @default 'src/index.ts' */
   input?: InputOption;
@@ -58,10 +72,14 @@ export interface INaiableRollupConfig {
   commonjs?: RollupCommonJSOptions | false;
   /** The `@rollup/plugin-node-resolve` options. Default extensions include `.ts`, `.tsx`, `.cjs`, `.jsx`, `.mts`, `.cts`. */
   resolve?: RollupNodeResolveOptions | false;
-  /** Use `@rollup/plugin-typescript` or `@rollup/plugin-swc` ? */
-  compile?: INaiableRollupCompileConfig;
+  /** Use `@rollup/plugin-typescript` or `@rollup/plugin-swc` or `rollup-plugin-esbuild` ? */
+  compile?: INaiableRollupCompileConfig | false;
   /** The `d.ts` build options. */
   dts?: RollupDTSOptions | false;
+  /** The `unplugin-vue` options. */
+  vue?: Parameters<typeof vue>[0] | false;
+  /** The `@rollup/plugin-babel` options. */
+  babel?: INaiableBabelOptions | false;
   /** Use strict. @default true */
   strict?: boolean;
   /** Source map. @default inline */
@@ -104,7 +122,11 @@ export default function naiup(config: INaiableRollupConfig = {}): RollupOptions[
       type: "@rollup/plugin-typescript",
       typescript: {},
     },
-    dts: {},
+    vue: {
+      include: /\.vue$/,
+      sourceMap: true,
+    },
+    babel: false,
     overrides: {
       buildOptions: {},
       dtsOptions: {},
@@ -118,16 +140,26 @@ export default function naiup(config: INaiableRollupConfig = {}): RollupOptions[
   };
 
   const finalConfig = defu(config, defaults);
+  if (config && config.output && Array.isArray(config.output)) finalConfig.output = config.output;
+
   const finalPlugins: InputPluginOption[] = [];
+  const finalOutputPlugins = [];
 
   if (finalConfig.alias !== false) finalPlugins.push(alias(finalConfig.alias));
-
   if (finalConfig.commonjs !== false) finalPlugins.push(commonjs(finalConfig.commonjs));
-
   if (finalConfig.resolve !== false) finalPlugins.push(resolve(finalConfig.resolve));
+  if (finalConfig.vue !== false) finalPlugins.push(vue(finalConfig.vue));
+  if (finalConfig.babel !== false) {
+    if (finalConfig.babel.inputOptions !== false) finalPlugins.push(babel(finalConfig.babel.inputOptions));
+    if (finalConfig.babel.outputOptions !== false) finalOutputPlugins.push(getBabelOutputPlugin(finalConfig.babel.outputOptions));
+  }
 
-  if (finalConfig.compile.type === "@rollup/plugin-swc") finalPlugins.push(swc(finalConfig.compile));
-  else if (finalConfig.compile.type === "@rollup/plugin-typescript") finalPlugins.push(typescript(finalConfig.compile.typescript));
+  if (finalConfig.compile !== false) {
+    const complieOptions = finalConfig.compile as INaiableRollupCompileConfig;
+    if (complieOptions.type === "@rollup/plugin-swc") finalPlugins.push(swc(complieOptions.swc));
+    else if (complieOptions.type === "@rollup/plugin-typescript") finalPlugins.push(typescript(complieOptions.typescript));
+    else if (complieOptions.type === "rollup-plugin-esbuild") finalPlugins.push(esbuild(complieOptions.esbuild));
+  }
 
   const defaultComputedBuildOptions: RollupOptions = {
     input: finalConfig.input,
@@ -140,6 +172,7 @@ export default function naiup(config: INaiableRollupConfig = {}): RollupOptions[
       strict: finalConfig.strict,
       sourcemap: finalConfig.sourcemap,
       preserveModules: finalConfig.preserveModules,
+      plugins: [...finalOutputPlugins],
     })),
   };
 
@@ -150,21 +183,24 @@ export default function naiup(config: INaiableRollupConfig = {}): RollupOptions[
       external: finalConfig.external,
       plugins: [...finalPlugins, dts(finalConfig.dts)],
       output: [
-        ...[...new Set(finalConfig.output)].map((format) => ({
-          format,
-          dir: join(finalConfig.dir, format),
-          entryFileNames: `[name].d.${format === "cjs" ? "cts" : "mts"}`,
-          strict: finalConfig.strict,
-          sourcemap: finalConfig.sourcemap,
-          preserveModules: finalConfig.preserveModules,
-        })),
+        ...[...new Set(finalConfig.output)].map(
+          (format) =>
+            ({
+              format,
+              dir: join(finalConfig.dir, format),
+              entryFileNames: `[name].d.${format === "cjs" ? "cts" : "mts"}`,
+              strict: finalConfig.strict,
+              sourcemap: finalConfig.sourcemap,
+              preserveModules: finalConfig.preserveModules,
+            } as OutputOptions)
+        ),
         {
           dir: join(finalConfig.dir, "types"),
           entryFileNames: "[name].d.ts",
           strict: finalConfig.strict,
           sourcemap: finalConfig.sourcemap,
           preserveModules: finalConfig.preserveModules,
-        },
+        } as OutputOptions,
       ],
     };
   }
