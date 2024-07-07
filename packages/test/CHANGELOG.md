@@ -4,6 +4,13 @@
 
 ### Patch Changes
 
+- Updated dependencies [e62d739]
+  - @naiable/rollup-config@0.2.1
+
+## null
+
+### Patch Changes
+
 - Updated dependencies [0e5f926]
   - @naiable/rollup-config@0.2.0
 

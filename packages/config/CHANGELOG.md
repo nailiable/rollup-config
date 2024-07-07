@@ -1,5 +1,11 @@
 # @naiable/rollup-config
 
+## 0.2.1
+
+### Patch Changes
+
+- e62d739: fix: default alias options
+
 ## 0.2.0
 
 ### Minor Changes
